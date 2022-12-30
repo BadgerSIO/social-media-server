@@ -50,6 +50,57 @@ const run = async () => {
       const result = await postCollections.findOne(query);
       res.send(result);
     });
+    //post like button
+    app.put("/posts/like/:id", async (req, res) => {
+      const userEmail = req.query.email;
+      const postId = req.params.id;
+      //find the post
+      const query = {
+        _id: ObjectId(postId),
+      };
+      const query2 = {
+        _id: ObjectId(postId),
+        likes: [userEmail],
+      };
+      const exist = await postCollections.findOne(query2);
+      if (!exist) {
+        const updatedDoc = {
+          $push: {
+            likes: [userEmail],
+          },
+        };
+        const options = { upsert: true };
+        const result = await postCollections.updateOne(
+          query,
+          updatedDoc,
+          options
+        );
+        return res.send(result);
+      }
+      const updatedDoc = {
+        $pull: {
+          likes: [userEmail],
+        },
+      };
+      const options = { upsert: true };
+      const result = await postCollections.updateOne(
+        query,
+        updatedDoc,
+        options
+      );
+      res.send(result);
+    });
+    //get top 3 post
+    app.get("/topPost", async (req, res) => {
+      const query = {};
+      const result = await postCollections
+        .find()
+        .sort({ likes: -1 })
+        .limit(1)
+        .toArray();
+
+      res.send(result);
+    });
     //add user
     app.post("/user", async (req, res) => {
       const user = req.body;
