@@ -66,6 +66,7 @@ const run = async () => {
 
       if (!exist) {
         const updatedDoc = {
+          $inc: { quantity: 1 },
           $push: {
             likes: userEmail,
           },
@@ -79,6 +80,7 @@ const run = async () => {
         return res.send(result);
       }
       const updatedDoc = {
+        $inc: { quantity: -1 },
         $pull: {
           likes: userEmail,
         },
