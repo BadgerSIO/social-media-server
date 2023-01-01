@@ -98,7 +98,7 @@ const run = async () => {
       const query = {};
       const result = await postCollections
         .find(query)
-        .sort({ likes: -1 })
+        .sort({ quantity: -1 })
         .limit(3)
         .toArray();
       res.send(result);
