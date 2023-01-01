@@ -60,13 +60,14 @@ const run = async () => {
       };
       const query2 = {
         _id: ObjectId(postId),
-        likes: [userEmail],
+        likes: { $all: [userEmail] },
       };
       const exist = await postCollections.findOne(query2);
+
       if (!exist) {
         const updatedDoc = {
           $push: {
-            likes: [userEmail],
+            likes: userEmail,
           },
         };
         const options = { upsert: true };
@@ -79,7 +80,7 @@ const run = async () => {
       }
       const updatedDoc = {
         $pull: {
-          likes: [userEmail],
+          likes: userEmail,
         },
       };
       const options = { upsert: true };
@@ -94,11 +95,10 @@ const run = async () => {
     app.get("/topPost", async (req, res) => {
       const query = {};
       const result = await postCollections
-        .find()
+        .find(query)
         .sort({ likes: -1 })
-        .limit(1)
+        .limit(3)
         .toArray();
-
       res.send(result);
     });
     //add user
@@ -108,8 +108,8 @@ const run = async () => {
       res.send(result);
     });
     //get user
-    app.get("/user/:email", async (req, res) => {
-      const reqEmail = req.params.email;
+    app.get("/userinfo", async (req, res) => {
+      const reqEmail = req.query.email;
       const query = {
         userEmail: reqEmail,
       };
