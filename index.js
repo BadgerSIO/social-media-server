@@ -106,6 +106,21 @@ const run = async () => {
     //add user
     app.post("/user", async (req, res) => {
       const user = req.body;
+      const userEmail = user.userEmail;
+      const query = {
+        userEmail: userEmail,
+      };
+      const findUser = await userCollections.findOne(query);
+      if (findUser) {
+        const updateDoc = {
+          $set: {
+            userEmail: userEmail,
+            username: user.username,
+          },
+        };
+        const result = await userCollections.updateOne(query, updateDoc);
+        return res.send(result);
+      }
       const result = await userCollections.insertOne(user);
       res.send(result);
     });
@@ -116,6 +131,27 @@ const run = async () => {
         userEmail: reqEmail,
       };
       const result = await userCollections.findOne(query);
+      res.send(result);
+    });
+    //update user
+    app.put("/user/:current", async (req, res) => {
+      const fieldName = req.params.current;
+      const fieldData = req.body.currentInput;
+      const userEmail = req.query.email;
+      const query = {
+        userEmail: userEmail,
+      };
+      const options = { upsert: true };
+      const updatedDoc = {
+        $set: {
+          [fieldName]: fieldData,
+        },
+      };
+      const result = await userCollections.updateOne(
+        query,
+        updatedDoc,
+        options
+      );
       res.send(result);
     });
     //add review
